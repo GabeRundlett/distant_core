@@ -28,7 +28,7 @@ int main() {
     for (; i < module_memory_buffer.size(); ++i) {
         std::size_t j = 0;
         for (; j < signature.size(); ++j) {
-            if (!signature[j].wildcard && signature[j].byte != module_memory_buffer[i + j]) 
+            if (!signature[j].wildcard && signature[j].byte != module_memory_buffer[i + j])
                 break;
         }
         if (j == signature.size()) {

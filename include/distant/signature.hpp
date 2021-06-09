@@ -74,7 +74,6 @@ namespace distant::signature_literals {
             }
         }
         return result;
-        // return Signature<sig.byte_count>(sig);
     }
 
     template <CodeSignatureString code_sig>
@@ -97,7 +96,6 @@ namespace distant::signature_literals {
             }
         }
         return result;
-        // return Signature<sig.byte_count>(sig);
     }
 
     static_assert("f0 2E ? 16"_IdaSig == "\xF0\x2e\x00\x16 xx?x"_CodeSig);

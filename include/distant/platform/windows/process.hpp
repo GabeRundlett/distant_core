@@ -16,7 +16,7 @@ namespace distant::platform {
 
     struct Module {
         void *base_address = nullptr;
-        std::size_t size = 0;
+        std::size_t base_size = 0;
         HANDLE parent_process_handle = nullptr;
     };
 

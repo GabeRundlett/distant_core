@@ -11,6 +11,7 @@ namespace distant {
             while (true) {
                 if (std::string(module_entry.szModule) == module_name) {
                     native.base_address = module_entry.modBaseAddr;
+                    native.base_size = module_entry.modBaseSize;
                     native.parent_process_handle = parent_process.native.handle;
                     break;
                 }
