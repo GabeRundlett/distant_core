@@ -7,8 +7,8 @@ Distant uses CMake as a build system, meaning you can simply incorporate it dire
 
 As for now, the framework itself has **no dependencies**, but in order to build the examples, one would need to have VCPKG set-up (as the CMake toolchain file) with the following libraries installed:
  - glfw3
- - glad
- - imgui[core,glfw-binding,opengl3-glad-binding]
+ - glew
+ - imgui[core,glfw-binding,opengl3-glew-binding]
 
 Eventually, the plan is to publish this framework to the VCPKG registry, so that installation and usage is as simple as installing it through the command-line and then adding the single `find_package` line to one's CMake script.
 

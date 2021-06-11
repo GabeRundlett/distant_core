@@ -1,12 +1,12 @@
 #include <cstdlib>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 struct Application {
     GLFWwindow *glfw_window_ptr;
@@ -87,7 +87,7 @@ Application app_init() {
         redraw(glfw_window_ptr, size_x, size_y);
     });
 
-    gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+    glewInit();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
