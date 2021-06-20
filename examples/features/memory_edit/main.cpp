@@ -12,9 +12,9 @@ int main() {
     auto base_module =
         external_process.find_module("Distant_TargetApps_Simple.exe");
 
-    base_module.write<int>(VALUE_OFFSET, 10);
+    base_module.write_value<int>(VALUE_OFFSET, 10);
 
     auto server_value_address =
-        base_module.read<distant::Address>(SERVER_PTR_OFFSET);
-    external_process.write<int>(server_value_address, 38);
+        base_module.read_value<distant::Address>(SERVER_PTR_OFFSET);
+    external_process.write_value<int>(server_value_address, 38);
 }

@@ -10,11 +10,8 @@ int main() {
     auto base_module =
         external_process.find_module("Distant_TargetApps_Simple.exe");
 
-    // read entire base module memory buffer to vector
-    std::vector<std::uint8_t> module_memory_buffer;
-    module_memory_buffer.resize(base_module.size());
-    if (!base_module.read_buffer(0, module_memory_buffer.data(),
-                                 module_memory_buffer.size())) {
+    auto module_memory_buffer = base_module.read_buffer(0, base_module.size());
+    if (module_memory_buffer.size() != base_module.size()) {
         return EXIT_FAILURE;
     }
 
@@ -26,7 +23,7 @@ int main() {
     for (std::size_t i = 0; i < module_memory_buffer.size(); ++i) {
         std::size_t j = 0;
         for (; j < signature.size(); ++j) {
-            if (!signature[j].wildcard &&
+            if (!signature[j].flags.wildcard &&
                 signature[j].byte != module_memory_buffer[i + j])
                 break;
         }
@@ -48,7 +45,7 @@ int main() {
     // write 6 bytes to 0x90, AKA no-op. This disables the `inc` instruction
     // and its 4 byte argument, allowing the code to continue perfectly fine
     for (int i = 0; i < 6; ++i) {
-        base_module.write<std::uint8_t>(signature_offset + i, 0x90);
+        base_module.write_value<std::uint8_t>(signature_offset + i, 0x90);
     }
 
     return EXIT_SUCCESS;

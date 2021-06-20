@@ -9,8 +9,6 @@ if (WIN32)
     list(APPEND ${PROJECT_NAME}_sources
         "platform/windows/injection.cpp"
         "platform/windows/process.cpp"
-        "platform/windows/virtual_buffer.cpp"
-        "platform/windows/module.cpp"
     )
 endif()
 

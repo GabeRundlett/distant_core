@@ -10,11 +10,8 @@ int main() {
     auto base_module =
         external_process.find_module("Distant_TargetApps_Simple.exe");
 
-    // read entire base module memory buffer to vector
-    std::vector<std::uint8_t> module_memory_buffer;
-    module_memory_buffer.resize(base_module.size());
-    if (!base_module.read_buffer(0, module_memory_buffer.data(),
-                                 module_memory_buffer.size())) {
+    auto module_memory_buffer = base_module.read_buffer(0, base_module.size());
+    if (module_memory_buffer.size() != base_module.size()) {
         return EXIT_FAILURE;
     }
 
@@ -28,7 +25,7 @@ int main() {
     for (; i < module_memory_buffer.size(); ++i) {
         std::size_t j = 0;
         for (; j < signature.size(); ++j) {
-            if (!signature[j].wildcard &&
+            if (!signature[j].flags.wildcard &&
                 signature[j].byte != module_memory_buffer[i + j])
                 break;
         }
@@ -50,12 +47,8 @@ int main() {
     std::cout << std::format("Signature found at offset {}\n",
                              (void *)signature_offset);
 
-    std::vector<std::uint8_t> code_bytes;
-    code_bytes.resize(64);
-    if (!base_module.read_buffer(signature_offset, code_bytes.data(),
-                                 code_bytes.size())) {
-        return EXIT_FAILURE;
-    }
+    auto code_bytes = base_module.read_buffer(signature_offset, 64);
+    if (code_bytes.size() != 64) { return EXIT_FAILURE; }
 
     // INSTRUX ix;
     // if (!ND_SUCCESS(NdDecodeEx(&ix, code_bytes.data(), code_bytes.size(),

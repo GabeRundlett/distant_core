@@ -20,8 +20,8 @@ int main() {
     auto str = injectable_filepath.string();
     auto injectable_filepath_remote_buffer =
         process.virtual_alloc_unique(str.size() + 1);
-    injectable_filepath_remote_buffer.write_buffer(0, str.data(), str.size());
-    injectable_filepath_remote_buffer.write(str.size(), '\0');
+    injectable_filepath_remote_buffer.write(0, str.data(), str.size());
+    injectable_filepath_remote_buffer.write_value(str.size(), '\0');
     auto kernel32_dll_handle = GetModuleHandle("kernel32.dll");
     if (!kernel32_dll_handle) {
         std::cout << "Failed to get \"kernel32.dll\" dll module handle\n";

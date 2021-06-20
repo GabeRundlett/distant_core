@@ -2,8 +2,10 @@
 
 #include <distant/memory.hpp>
 #include <distant/platform/native.hpp>
+
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace distant {
     class Process;
@@ -31,16 +33,17 @@ namespace distant {
         ~UniqueVirtualBuffer();
 
         UniqueVirtualBuffer(const UniqueVirtualBuffer &) = delete;
-        UniqueVirtualBuffer(UniqueVirtualBuffer &&) noexcept;
         UniqueVirtualBuffer & operator=(const UniqueVirtualBuffer &) = delete;
+        UniqueVirtualBuffer(UniqueVirtualBuffer &&) noexcept;
         UniqueVirtualBuffer & operator=(UniqueVirtualBuffer &&) noexcept;
 
         explicit operator bool() const;
 
-        bool read_buffer(AddressOffset offset, void * buffer_ptr,
-                         std::size_t buffer_size) const;
-        bool write_buffer(AddressOffset offset, const void * buffer_ptr,
-                          std::size_t buffer_size) const;
+        bool read(AddressOffset offset, void * buffer_ptr,
+                  std::size_t buffer_size) const;
+        bool write(AddressOffset offset, const void * buffer_ptr,
+                   std::size_t buffer_size) const;
+
         constexpr Address get() const { return address; }
     };
 
@@ -59,15 +62,16 @@ namespace distant {
         ~Module();
 
         Module(const Module &) = delete;
-        Module(Module &&) noexcept;
         Module & operator=(const Module &) = delete;
-        Module & operator                  =(Module &&) noexcept;
+        Module(Module &&) noexcept;
+        Module & operator=(Module &&) noexcept;
+
+        bool read(AddressOffset offset, void * buffer_ptr,
+                  std::size_t buffer_size) const;
+        bool write(AddressOffset offset, const void * buffer_ptr,
+                   std::size_t buffer_size) const;
 
         Address get_base_address() const;
-        bool    read_buffer(AddressOffset offset, void * buffer_ptr,
-                            std::size_t buffer_size) const;
-        bool    write_buffer(AddressOffset offset, const void * buffer_ptr,
-                             std::size_t buffer_size) const;
 
         std::size_t size() const noexcept;
         std::byte * data() const noexcept;
@@ -86,9 +90,9 @@ namespace distant {
         ~Process();
 
         Process(const Process &) = delete;
-        Process(Process &&) noexcept;
         Process & operator=(const Process &) = delete;
-        Process & operator                   =(Process &&) noexcept;
+        Process(Process &&) noexcept;
+        Process & operator=(Process &&) noexcept;
 
         explicit operator bool() const;
 
@@ -97,10 +101,10 @@ namespace distant {
             const platform::VirtualBuffer::Config & config = {}) const;
         Module find_module(const std::string & module_name) const;
 
-        bool read_buffer(Address address, void * buffer_ptr,
-                         std::size_t buffer_size) const;
-        bool write_buffer(Address address, const void * buffer_ptr,
-                          std::size_t buffer_size) const;
+        bool read(Address address, void * buffer_ptr,
+                  std::size_t buffer_size) const;
+        bool write(Address address, const void * buffer_ptr,
+                   std::size_t buffer_size) const;
 
         friend class UniqueVirtualBuffer;
         friend class Module;

@@ -5,10 +5,14 @@
 
 namespace distant {
     struct SignatureEntry {
-        std::uint8_t byte     = 0x00;
-        bool         wildcard = false;
-
-        constexpr bool operator==(const SignatureEntry &) const = default;
+        std::uint8_t byte = 0x00;
+        struct Flags {
+            bool           wildcard : 1                             = false;
+            constexpr bool operator==(const Flags &) const noexcept = default;
+        } flags;
+        static_assert(sizeof(Flags) == sizeof(std::uint8_t));
+        constexpr bool
+        operator==(const SignatureEntry &) const noexcept = default;
     };
 
     namespace detail {
@@ -35,55 +39,48 @@ namespace distant {
 namespace distant::signature_literals {
     template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_IdaSig() {
-        // find number of entries
         constexpr std::size_t ENTRY_N =
             std::ranges::count(SIG_STR.chars, ' ') + 1;
         std::array<SignatureEntry, ENTRY_N> result = {};
-
         for (std::size_t str_i = 0, i = 0; str_i < SIG_STR.chars.size() - 1;
              ++str_i) {
             auto c = SIG_STR.chars[str_i];
             if (c != ' ') {
                 if (c == '?') {
-                    result[i] = {.byte = 0, .wildcard = true};
+                    result[i] = {.byte = 0, .flags{.wildcard = true}};
                 } else {
                     result[i] = {
                         .byte = detail::ida_signature_byte(
                             c, SIG_STR.chars[str_i + 1]),
-                        .wildcard = false,
+                        .flags{.wildcard = false},
                     };
                     ++str_i;
                 }
                 ++i;
             }
         }
-
         return result;
     }
 
     template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_CodeSig() {
-        // find number of entries
         constexpr std::size_t ENTRY_N = SIG_STR.chars.size() / 2 - 1;
         std::array<SignatureEntry, ENTRY_N> result = {};
-
         for (int i = 0; i < ENTRY_N; ++i) {
             std::uint8_t byte = SIG_STR.chars[i];
             auto         wild = SIG_STR.chars[i + ENTRY_N + 1];
-
             if (wild == '?') {
                 result[i] = {
-                    .byte     = 0,
-                    .wildcard = true,
+                    .byte = 0,
+                    .flags{.wildcard = true},
                 };
             } else {
                 result[i] = {
-                    .byte     = byte,
-                    .wildcard = false,
+                    .byte = byte,
+                    .flags{.wildcard = false},
                 };
             }
         }
-
         return result;
     }
 

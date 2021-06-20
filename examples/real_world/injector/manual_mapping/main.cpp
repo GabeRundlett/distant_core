@@ -142,7 +142,7 @@ int main() {
         nt_headers_ptr->OptionalHeader.SizeOfImage);
 
     // Copy the headers to target process
-    executable_image_buffer.write_buffer(
+    executable_image_buffer.write(
         0, dll_file.binary.data(),
         nt_headers_ptr->OptionalHeader.SizeOfHeaders);
 
@@ -151,7 +151,7 @@ int main() {
         (PIMAGE_SECTION_HEADER)(nt_headers_ptr + 1);
     // Copying sections of the dll to the target process
     for (int i = 0; i < nt_headers_ptr->FileHeader.NumberOfSections; i++) {
-        executable_image_buffer.write_buffer(
+        executable_image_buffer.write(
             section_header_ptr[i].VirtualAddress,
             &dll_file.binary[section_header_ptr[i].PointerToRawData],
             section_header_ptr[i].SizeOfRawData);
@@ -168,14 +168,14 @@ int main() {
     auto loader_func_args_ptr = std::bit_cast<void *>(loader_buffer.get());
 
     // Write the loader information to target process
-    loader_buffer.write(0, loaderdata{
+    loader_buffer.write_value(0, loaderdata{
                                .ImageBase = std::bit_cast<void *>(
                                    executable_image_buffer.get()),
                                .fnLoadLibraryA   = LoadLibraryA,
                                .fnGetProcAddress = GetProcAddress,
                            });
     // Write the loader code to target process
-    loader_buffer.write_buffer(sizeof(loaderdata), &LibraryLoader,
+    loader_buffer.write(sizeof(loaderdata), &LibraryLoader,
                                static_cast<DWORD>(loader_func_size));
     // Create a remote thread to execute the loader code
     HANDLE thread_handle =

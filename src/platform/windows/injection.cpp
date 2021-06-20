@@ -71,7 +71,7 @@ namespace distant {
           image_buffer(process.virtual_alloc_unique(
               static_cast<IMAGE_NT_HEADERS *>(injectable.native.nt_headers_ptr)
                   ->OptionalHeader.SizeOfImage)) {
-        image_buffer.write_buffer(
+        image_buffer.write(
             0, injectable.binary.data(),
             static_cast<IMAGE_NT_HEADERS *>(injectable.native.nt_headers_ptr)
                 ->OptionalHeader.SizeOfHeaders);
@@ -83,7 +83,7 @@ namespace distant {
                                 injectable.native.nt_headers_ptr)
                                 ->FileHeader.NumberOfSections;
              i++) {
-            image_buffer.write_buffer(
+            image_buffer.write(
                 section_header_ptr[i].VirtualAddress,
                 &injectable.binary[section_header_ptr[i].PointerToRawData],
                 section_header_ptr[i].SizeOfRawData);
@@ -215,15 +215,15 @@ namespace distant {
                                          loader_buffer.get()) +
                                      sizeof(ShellcodeArgs));
         auto loader_shellargs_ptr = std::bit_cast<void *>(loader_buffer.get());
-        loader_buffer.write(0,
-                            ShellcodeArgs{
-                                .image_buffer_address =
-                                    std::bit_cast<void *>(image_buffer.get()),
-                                .LoadLibrary_ptr    = LoadLibraryA,
-                                .GetProcAddress_ptr = GetProcAddress,
-                            });
-        loader_buffer.write_buffer(sizeof(ShellcodeArgs), loader_shellcode_ptr,
-                                   static_cast<DWORD>(shellcode_size));
+        loader_buffer.write_value(
+            0, ShellcodeArgs{
+                   .image_buffer_address =
+                       std::bit_cast<void *>(image_buffer.get()),
+                   .LoadLibrary_ptr    = LoadLibraryA,
+                   .GetProcAddress_ptr = GetProcAddress,
+               });
+        loader_buffer.write(sizeof(ShellcodeArgs), loader_shellcode_ptr,
+                            static_cast<DWORD>(shellcode_size));
         HANDLE thread_handle = CreateRemoteThread(
             process.native.handle, NULL, 0, loader_shellcode_ptr,
             loader_shellargs_ptr, 0, NULL);
