@@ -9,16 +9,19 @@
 #include <GL/glew.h>
 
 struct Application {
-    GLFWwindow *glfw_window_ptr;
-    ImFont *arial_font;
+    GLFWwindow * glfw_window_ptr;
+    ImFont *     arial_font;
 };
 
 void dockspace() {
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+    static ImGuiDockNodeFlags dockspace_flags =
+        ImGuiDockNodeFlags_PassthruCentralNode;
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
-    const ImGuiViewport *viewport = ImGui::GetMainViewport();
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus |
+                    ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+    const ImGuiViewport * viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::SetNextWindowViewport(viewport->ID);
@@ -34,17 +37,15 @@ void dockspace() {
 
 void on_draw(int size_x, int size_y) {
     static float rgb[3];
-    static bool show_demo = false;
+    static bool  show_demo = false;
 
     // dockspace();
 
     ImGui::Begin("MainUI", nullptr, ImGuiWindowFlags_NoDecoration);
 
-    if (ImGui::Button("Open Process"))
-        ImGui::OpenPopup("Open Process");
+    if (ImGui::Button("Open Process")) ImGui::OpenPopup("Open Process");
     if (ImGui::BeginPopupModal("Open Process")) {
-        if (ImGui::Button("Close"))
-            ImGui::CloseCurrentPopup();
+        if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
     }
 
@@ -56,13 +57,12 @@ void on_draw(int size_x, int size_y) {
     ImGui::Begin("AddressList");
     ImGui::End();
 
-    if (show_demo)
-        ImGui::ShowDemoWindow(&show_demo);
+    if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 
     glClearColor(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void redraw(GLFWwindow *glfw_window_ptr, int size_x, int size_y) {
+void redraw(GLFWwindow * glfw_window_ptr, int size_x, int size_y) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -80,24 +80,28 @@ void redraw(GLFWwindow *glfw_window_ptr, int size_x, int size_y) {
 Application app_init() {
     glfwInit();
     Application result;
-    result.glfw_window_ptr = glfwCreateWindow(800, 600, "App window", nullptr, nullptr);
+    result.glfw_window_ptr =
+        glfwCreateWindow(800, 600, "App window", nullptr, nullptr);
 
     glfwMakeContextCurrent(result.glfw_window_ptr);
-    glfwSetWindowSizeCallback(result.glfw_window_ptr, [](GLFWwindow *glfw_window_ptr, int size_x, int size_y) {
-        redraw(glfw_window_ptr, size_x, size_y);
-    });
+    glfwSetWindowSizeCallback(
+        result.glfw_window_ptr,
+        [](GLFWwindow * glfw_window_ptr, int size_x, int size_y) {
+            redraw(glfw_window_ptr, size_x, size_y);
+        });
 
     glewInit();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO & io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.IniFilename = NULL;
 
     ImGui::StyleColorsDark();
-    result.arial_font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Arial.ttf", 14.0f);
+    result.arial_font =
+        io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Arial.ttf", 14.0f);
 
     ImGui_ImplGlfw_InitForOpenGL(result.glfw_window_ptr, true);
     ImGui_ImplOpenGL3_Init("#version 130");
@@ -110,8 +114,7 @@ int main() {
 
     while (true) {
         glfwPollEvents();
-        if (glfwWindowShouldClose(app.glfw_window_ptr))
-            break;
+        if (glfwWindowShouldClose(app.glfw_window_ptr)) break;
         int display_w, display_h;
         glfwGetFramebufferSize(app.glfw_window_ptr, &display_w, &display_h);
         redraw(app.glfw_window_ptr, display_w, display_h);

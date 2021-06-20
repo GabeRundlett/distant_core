@@ -1,71 +1,55 @@
 #pragma once
 
-#include <array>
 #include <algorithm>
+#include <array>
 
 namespace distant {
-    template <std::size_t StrLen>
-    struct IdaSignatureString {
-        std::array<char, StrLen> str_array{};
-        std::int64_t byte_count = 0;
-        consteval IdaSignatureString(const char (&str)[StrLen])
-            : byte_count{std::ranges::count(str, ' ') + 1} {
-            std::copy(str, str + StrLen, str_array.begin());
-        }
-    };
-
-    template <std::size_t StrLen>
-    struct CodeSignatureString {
-        std::array<char, StrLen> str_array{};
-        std::int64_t byte_count = 0;
-        consteval CodeSignatureString(const char (&str)[StrLen])
-            : byte_count{StrLen / 2 - 1} {
-            std::copy(str, str + StrLen, str_array.begin());
-        }
-    };
-
     struct SignatureEntry {
-        std::uint8_t byte = 0x00;
-        bool wildcard : 1 = false;
+        std::uint8_t byte     = 0x00;
+        bool         wildcard = false;
+
+        constexpr bool operator==(const SignatureEntry &) const = default;
     };
-    constexpr bool operator==(const SignatureEntry &a, const SignatureEntry &b) {
-        if (a.wildcard != b.wildcard)
-            return false;
-        return a.byte == b.byte;
-    }
 
     namespace detail {
-        consteval std::uint8_t ascii_to_hex(char c) {
-            if (c >= '0' && c <= '9')
-                return std::uint8_t(c) - '0';
-            if (c >= 'a' && c <= 'f')
-                return std::uint8_t(c) - 'a' + 10;
-            if (c >= 'A' && c <= 'F')
-                return std::uint8_t(c) - 'A' + 10;
+        constexpr std::uint8_t ascii_to_hex(char c) {
+            if (c >= '0' && c <= '9') { return std::uint8_t(c) - '0'; }
+            if (c >= 'a' && c <= 'f') { return std::uint8_t(c) - 'a' + 10; }
+            if (c >= 'A' && c <= 'F') { return std::uint8_t(c) - 'A' + 10; }
             return 0;
         }
 
-        consteval std::uint8_t ida_signature_byte(char c1, char c2) {
+        constexpr std::uint8_t ida_signature_byte(char c1, char c2) {
             return (ascii_to_hex(c1) << 4) + ascii_to_hex(c2);
         }
+
+        template <std::size_t CHAR_N> struct PatternString {
+            std::array<char, CHAR_N> chars;
+            constexpr PatternString(const char (&in)[CHAR_N]) : chars{} {
+                std::copy(in, in + CHAR_N, chars.begin());
+            }
+        };
     } // namespace detail
 } // namespace distant
 
 namespace distant::signature_literals {
-    template <IdaSignatureString ida_sig>
+    template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_IdaSig() {
-        std::array<SignatureEntry, ida_sig.byte_count> result;
-        for (std::size_t str_i = 0, i = 0; str_i < ida_sig.str_array.size() - 1; ++str_i) {
-            auto c = ida_sig.str_array[str_i];
+        // find number of entries
+        constexpr std::size_t ENTRY_N =
+            std::ranges::count(SIG_STR.chars, ' ') + 1;
+        std::array<SignatureEntry, ENTRY_N> result = {};
+
+        for (std::size_t str_i = 0, i = 0; str_i < SIG_STR.chars.size() - 1;
+             ++str_i) {
+            auto c = SIG_STR.chars[str_i];
             if (c != ' ') {
                 if (c == '?') {
-                    result[i] = {
-                        .byte = 0,
-                        .wildcard = true,
-                    };
+                    result[i] = {.byte = 0, .wildcard = true};
                 } else {
                     result[i] = {
-                        .byte = detail::ida_signature_byte(c, ida_sig.str_array[str_i + 1]),
+                        .byte = detail::ida_signature_byte(
+                            c, SIG_STR.chars[str_i + 1]),
                         .wildcard = false,
                     };
                     ++str_i;
@@ -73,28 +57,33 @@ namespace distant::signature_literals {
                 ++i;
             }
         }
+
         return result;
     }
 
-    template <CodeSignatureString code_sig>
+    template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_CodeSig() {
-        std::array<SignatureEntry, code_sig.byte_count> result;
-        for (int i = 0; i < code_sig.byte_count; ++i) {
-            std::uint8_t byte = code_sig.str_array[i];
-            auto wild = code_sig.str_array[i + code_sig.byte_count + 1];
+        // find number of entries
+        constexpr std::size_t ENTRY_N = SIG_STR.chars.size() / 2 - 1;
+        std::array<SignatureEntry, ENTRY_N> result = {};
+
+        for (int i = 0; i < ENTRY_N; ++i) {
+            std::uint8_t byte = SIG_STR.chars[i];
+            auto         wild = SIG_STR.chars[i + ENTRY_N + 1];
 
             if (wild == '?') {
                 result[i] = {
-                    .byte = 0,
+                    .byte     = 0,
                     .wildcard = true,
                 };
             } else {
                 result[i] = {
-                    .byte = byte,
+                    .byte     = byte,
                     .wildcard = false,
                 };
             }
         }
+
         return result;
     }
 

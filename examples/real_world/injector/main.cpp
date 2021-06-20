@@ -18,7 +18,9 @@ int main() {
     std::filesystem::path injectable_filepath;
     // std::cout << "Enter injectable name: " << std::flush;
     // std::cin >> injectable_filepath;
-    injectable_filepath = std::filesystem::current_path() / "build/examples/injectable_dlls/basic/Release/basic.dll";
+    injectable_filepath =
+        std::filesystem::current_path() /
+        "build/examples/injectable_dlls/basic/Release/basic.dll";
 
     distant::Injectable injectable(injectable_filepath);
     if (!injectable) {

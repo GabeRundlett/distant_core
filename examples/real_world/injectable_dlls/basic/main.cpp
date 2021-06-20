@@ -5,12 +5,8 @@
 // MUST FIX LOADER FOR GLOBAL OBJECTS TO BEHAVE
 #if 1
 struct GlobalObject {
-    GlobalObject() {
-        MessageBox(0, "constructed", "Global", 0);
-    }
-    ~GlobalObject() {
-        MessageBox(0, "destructed", "Global", 0);
-    }
+    GlobalObject() { MessageBox(0, "constructed", "Global", 0); }
+    ~GlobalObject() { MessageBox(0, "destructed", "Global", 0); }
 };
 
 GlobalObject global_object;

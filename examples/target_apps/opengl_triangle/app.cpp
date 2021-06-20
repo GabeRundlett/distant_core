@@ -2,25 +2,26 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
-
 #include <array>
+#include <glad/glad.h>
 #include <thread>
 using namespace std::chrono_literals;
 
 Application::Application() {
     glfwInit();
-    window = {.size_x = 400, .size_y = 400},
-    window.glfw_window_ptr = glfwCreateWindow(
-        window.size_x, window.size_y,
-        "Host OpenGL Application", nullptr, nullptr);
+    constexpr auto DEFAULT_WINDOW_WIDTH = 400, DEFAULT_WINDOW_HEIGHT = 400;
+    window = {.size_x = DEFAULT_WINDOW_WIDTH, .size_y = DEFAULT_WINDOW_HEIGHT},
+    window.glfw_window_ptr =
+        glfwCreateWindow(window.size_x, window.size_y,
+                         "Host OpenGL Application", nullptr, nullptr);
 
     glfwSetWindowUserPointer(window.glfw_window_ptr, static_cast<void *>(this));
 
     glfwSetWindowSizeCallback(
         window.glfw_window_ptr,
-        [](GLFWwindow *glfw_window_ptr, int size_x, int size_y) {
-            auto &app = *static_cast<Application *>(glfwGetWindowUserPointer(glfw_window_ptr));
+        [](GLFWwindow * glfw_window_ptr, int size_x, int size_y) {
+            auto & app = *static_cast<Application *>(
+                glfwGetWindowUserPointer(glfw_window_ptr));
             app.on_resize(size_x, size_y);
         });
 
@@ -44,17 +45,20 @@ Application::Application() {
 
     glCreateBuffers(1, &vbo_id);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(),
+                 GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, x)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          reinterpret_cast<void *>(offsetof(Vertex, x)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, r)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          reinterpret_cast<void *>(offsetof(Vertex, r)));
 
     shader_program_id = glCreateProgram();
     glUseProgram(shader_program_id);
 
-    const char *const vert_src = R"glsl(
+    const char * const vert_src = R"glsl(
         #version 450
 
         layout(location = 0) in vec2 in_pos;
@@ -67,12 +71,13 @@ Application::Application() {
             gl_Position = vec4(in_pos, 0, 1);
         }
     )glsl";
+
     GLuint vert_shader_id = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader_id, 1, &vert_src, nullptr);
     glCompileShader(vert_shader_id);
     glAttachShader(shader_program_id, vert_shader_id);
 
-    const char *const frag_src = R"glsl(
+    const char * const frag_src = R"glsl(
         #version 450
 
         layout(location = 0) in vec3 in_col;
@@ -83,6 +88,7 @@ Application::Application() {
             out_col = vec4(in_col, 1);
         }
     )glsl";
+
     GLuint frag_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader_id, 1, &frag_src, nullptr);
     glCompileShader(frag_shader_id);

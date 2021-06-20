@@ -1,27 +1,25 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#include <TlHelp32.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace distant::platform {
     struct VirtualBuffer {
         struct Config {
-            void *desired_location = nullptr;
-            DWORD protect_flags = PAGE_EXECUTE_READWRITE;
+            void *        desired_location = nullptr;
+            std::uint32_t protect_flags    = 0x40; // PAGE_EXECUTE_READWRITE
         };
-        HANDLE parent_process_handle = nullptr;
+        void * parent_process_handle = nullptr;
     };
 
     struct Module {
-        void *base_address = nullptr;
-        std::size_t base_size = 0;
-        HANDLE parent_process_handle = nullptr;
+        void *      base_address          = nullptr;
+        std::size_t base_size             = 0;
+        void *      parent_process_handle = nullptr;
     };
 
     struct Process {
-        DWORD id = ~DWORD{0};
-        HANDLE handle = nullptr;
+        std::uint32_t id     = ~std::uint32_t{0};
+        void *        handle = nullptr;
     };
 } // namespace distant::platform
