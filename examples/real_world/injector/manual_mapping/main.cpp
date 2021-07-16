@@ -1,5 +1,6 @@
 #define DISTANT_EXPOSE_NATIVE
-#include <distant/core.hpp>
+#include <distant/process.hpp>
+#include <distant/injection.hpp>
 
 #include <iostream>
 #include <filesystem>
@@ -142,9 +143,8 @@ int main() {
         nt_headers_ptr->OptionalHeader.SizeOfImage);
 
     // Copy the headers to target process
-    executable_image_buffer.write(
-        0, dll_file.binary.data(),
-        nt_headers_ptr->OptionalHeader.SizeOfHeaders);
+    executable_image_buffer.write(0, dll_file.binary.data(),
+                                  nt_headers_ptr->OptionalHeader.SizeOfHeaders);
 
     // Target Dll's Section Header
     IMAGE_SECTION_HEADER * section_header_ptr =
@@ -169,14 +169,14 @@ int main() {
 
     // Write the loader information to target process
     loader_buffer.write_value(0, loaderdata{
-                               .ImageBase = std::bit_cast<void *>(
-                                   executable_image_buffer.get()),
-                               .fnLoadLibraryA   = LoadLibraryA,
-                               .fnGetProcAddress = GetProcAddress,
-                           });
+                                     .ImageBase = std::bit_cast<void *>(
+                                         executable_image_buffer.get()),
+                                     .fnLoadLibraryA   = LoadLibraryA,
+                                     .fnGetProcAddress = GetProcAddress,
+                                 });
     // Write the loader code to target process
     loader_buffer.write(sizeof(loaderdata), &LibraryLoader,
-                               static_cast<DWORD>(loader_func_size));
+                        static_cast<DWORD>(loader_func_size));
     // Create a remote thread to execute the loader code
     HANDLE thread_handle =
         CreateRemoteThread(process.native.handle, NULL, 0, loader_func_ptr,

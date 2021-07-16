@@ -1,4 +1,5 @@
-#include <distant/core.hpp>
+#include <distant/process.hpp>
+#include <distant/injection.hpp>
 #include <iostream>
 #include <thread>
 using namespace std::chrono_literals;

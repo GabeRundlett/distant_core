@@ -4,6 +4,12 @@
 #include <array>
 
 namespace distant {
+    // SignatureEntry is a byte and flags pair that allows
+    // one to hold a collection of entries that represent
+    // a signature pattern in memory. One can easily create
+    // an array of these themselves, but the intended usage
+    // is to construct an array using the C++20 user defined
+    // literals provided, ie. _IdaSig and _CodeSig.
     struct SignatureEntry {
         std::uint8_t byte = 0x00;
         struct Flags {
@@ -16,6 +22,7 @@ namespace distant {
     };
 
     namespace detail {
+        // Implementation Detail [not meant to be used]
         constexpr std::uint8_t ascii_to_hex(char c) {
             if (c >= '0' && c <= '9') { return std::uint8_t(c) - '0'; }
             if (c >= 'a' && c <= 'f') { return std::uint8_t(c) - 'a' + 10; }
@@ -23,10 +30,12 @@ namespace distant {
             return 0;
         }
 
+        // Implementation Detail [not meant to be used]
         constexpr std::uint8_t ida_signature_byte(char c1, char c2) {
             return (ascii_to_hex(c1) << 4) + ascii_to_hex(c2);
         }
 
+        // Implementation Detail [not meant to be used]
         template <std::size_t CHAR_N> struct PatternString {
             std::array<char, CHAR_N> chars;
             constexpr PatternString(const char (&in)[CHAR_N]) : chars{} {
@@ -37,6 +46,16 @@ namespace distant {
 } // namespace distant
 
 namespace distant::signature_literals {
+    // The `_IdaSig` user defined literal constructs
+    // a std::array<SignatureEntry, N> where N is the
+    // parsed number of pattern bytes in the provided
+    // string literal.
+    // It requires the string literal is well formed in
+    // the IDA signature format, for example
+    //   "f0 2E ? 16"
+    // would be converted to an array of SignatureEntrys
+    // with data like:
+    //   {0xf0}, {0x2e}, {wild}, {0x16}
     template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_IdaSig() {
         constexpr std::size_t ENTRY_N =
@@ -62,6 +81,16 @@ namespace distant::signature_literals {
         return result;
     }
 
+    // The `_CodeSig` user defined literal constructs
+    // a std::array<SignatureEntry, N> where N is the
+    // parsed number of pattern bytes in the provided
+    // string literal.
+    // It requires the string literal is well formed in
+    // the Code signature format, for example
+    //   "\xF0\x2e\x00\x16 xx?x"
+    // would be converted to an array of SignatureEntrys
+    // with data like:
+    //   {0xf0}, {0x2e}, {wild}, {0x16}
     template <distant::detail::PatternString SIG_STR>
     consteval auto operator""_CodeSig() {
         constexpr std::size_t ENTRY_N = SIG_STR.chars.size() / 2 - 1;

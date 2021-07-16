@@ -1,6 +1,6 @@
 #pragma once
 
-#include <distant/memory.hpp>
+#include <distant/utilities/memory.hpp>
 #include <distant/platform/native.hpp>
 
 #include <optional>

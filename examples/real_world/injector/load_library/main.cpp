@@ -1,7 +1,8 @@
 #define DISTANT_EXPOSE_NATIVE
-#include <distant/core.hpp>
+#include <distant/process.hpp>
 
 #include <iostream>
+#include <filesystem>
 #include <thread>
 using namespace std::chrono_literals;
 

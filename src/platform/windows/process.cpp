@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <distant/core.hpp>
+#include <distant/process.hpp>
 #include <format>
 
 // UniqueVirtualBuffer Implementation

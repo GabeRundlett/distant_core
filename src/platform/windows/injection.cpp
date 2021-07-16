@@ -1,4 +1,4 @@
-#include <distant/core.hpp>
+#include <distant/injection.hpp>
 
 #include <cstdio>
 #include <format>

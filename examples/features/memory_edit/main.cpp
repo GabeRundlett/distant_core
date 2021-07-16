@@ -1,4 +1,4 @@
-#include <distant/core.hpp>
+#include <distant/process.hpp>
 
 namespace targetapp {
     constexpr distant::AddressOffset VALUE_OFFSET      = 0x5000;
