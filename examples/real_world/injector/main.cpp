@@ -7,7 +7,7 @@ int main() {
     std::string process_name;
     // std::cout << "Enter process name: " << std::flush;
     // std::cin >> process_name;
-    process_name = "target.exe";
+    process_name = "Distant_RealWorld_TargetApps_OpenglTriangle.exe";
 
     distant::Process process(process_name);
     if (!process) {
@@ -18,7 +18,8 @@ int main() {
     std::filesystem::path injectable_filepath;
     // std::cout << "Enter injectable name: " << std::flush;
     // std::cin >> injectable_filepath;
-    injectable_filepath = std::filesystem::current_path() / "build/examples/injectable_dlls/basic/Release/basic.dll";
+    injectable_filepath = std::filesystem::current_path() /
+        "_out/bin/ninja_vcpkg_debug_Windows/Distant_RealWorld_InjectableDLLs_Basic.dll";
 
     distant::Injectable injectable(injectable_filepath);
     if (!injectable) {

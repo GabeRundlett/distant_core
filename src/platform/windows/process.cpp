@@ -1,6 +1,6 @@
 #include <distant/core.hpp>
 #include <cstdio>
-#include <format>
+#include <fmt/format.h>
 
 namespace distant {
     static std::optional<PROCESSENTRY32> find_process_entry(const std::string &process_exe) {
@@ -9,7 +9,7 @@ namespace distant {
 
         HANDLE process_snapshot_handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
         if (process_snapshot_handle == INVALID_HANDLE_VALUE) {
-            std::printf(std::format("[ERROR:{:x}] Failed to create process snapshot\n", GetLastError()).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed to create process snapshot\n", GetLastError()).c_str());
             return std::nullopt;
         }
 
@@ -33,13 +33,13 @@ namespace distant {
         native = {};
         auto process_entry = find_process_entry(process_exe);
         if (!process_entry.has_value()) {
-            std::printf(std::format("[ERROR:{:x}] Failed to find process '{}'\n", GetLastError(), process_exe).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed to find process '{}'\n", GetLastError(), process_exe).c_str());
             return;
         }
         native = {.id = process_entry.value().th32ProcessID};
         native.handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, native.id);
         if (!native.handle) {
-            std::printf(std::format("[ERROR:{:x}] Failed to open process '{}'\n", GetLastError(), process_exe).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed to open process '{}'\n", GetLastError(), process_exe).c_str());
             return;
         }
     }
@@ -66,7 +66,7 @@ namespace distant {
 
     bool Process::read_buffer(Address address, void *buffer_ptr, std::size_t buffer_size) const {
         if (!ReadProcessMemory(native.handle, std::bit_cast<LPVOID>(address), buffer_ptr, buffer_size, nullptr)) {
-            std::printf(std::format("[ERROR:{:x}] Failed reading process memory at address {} with size {}\n", GetLastError(), (void *)address, buffer_size).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed reading process memory at address {} with size {}\n", GetLastError(), (void *)address, buffer_size).c_str());
             return false;
         }
         return true;
@@ -74,7 +74,7 @@ namespace distant {
 
     bool Process::write_buffer(Address address, const void *buffer_ptr, std::size_t buffer_size) const {
         if (!WriteProcessMemory(native.handle, std::bit_cast<LPVOID>(address), buffer_ptr, buffer_size, nullptr)) {
-            std::printf(std::format("[ERROR:{:x}] Failed writing process memory at address {} with size {}\n", GetLastError(), (void *)address, buffer_size).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed writing process memory at address {} with size {}\n", GetLastError(), (void *)address, buffer_size).c_str());
             return false;
         }
         return true;

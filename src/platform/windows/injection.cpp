@@ -1,22 +1,22 @@
 #include <distant/core.hpp>
 #include <cstdio>
-#include <format>
+#include <fmt/format.h>
 #include <fstream>
 
 namespace distant {
     Injectable::Injectable(const std::filesystem::path &filepath) : native{.valid = false} {
         if (!GetFileAttributes(filepath.string().c_str())) {
-            std::printf(std::format("Failed to get file attributes of file '{}', does it exist?\n", filepath.string()).c_str());
+            std::printf("%s", fmt::format("Failed to get file attributes of file '{}', does it exist?\n", filepath.string()).c_str());
             return;
         }
         std::ifstream dll_file_istream(filepath, std::ios::binary | std::ios::ate);
         if (dll_file_istream.fail()) {
-            std::printf(std::format("Failed to open file '{}'\n", filepath.string()).c_str());
+            std::printf("%s", fmt::format("Failed to open file '{}'\n", filepath.string()).c_str());
             return;
         }
         auto file_size = dll_file_istream.tellg();
         if (file_size < 0x1000) {
-            std::printf(std::format("File '{}' is too small to be a valid DLL ({:x} < 0x1000) bytes\n", filepath.string(), (std::size_t)file_size).c_str());
+            std::printf("%s", fmt::format("File '{}' is too small to be a valid DLL ({:x} < 0x1000) bytes\n", filepath.string(), (std::size_t)file_size).c_str());
             return;
         }
         binary.resize(file_size);
@@ -25,7 +25,7 @@ namespace distant {
         dll_file_istream.close();
         native.dos_header_ptr = std::bit_cast<IMAGE_DOS_HEADER *>(&binary[0]);
         if (native.dos_header_ptr->e_magic != 0x5a4d) {
-            std::printf(std::format("File '{}' does not have a valid DOS header magic number\n", filepath.string()).c_str());
+            std::printf("%s", fmt::format("File '{}' does not have a valid DOS header magic number\n", filepath.string()).c_str());
             return;
         }
         native.nt_headers_ptr = std::bit_cast<IMAGE_NT_HEADERS *>(&binary[native.dos_header_ptr->e_lfanew]);
@@ -178,7 +178,7 @@ namespace distant {
                 .LoadLibrary_ptr = LoadLibraryA,
                 .GetProcAddress_ptr = GetProcAddress,
             });
-        loader_buffer.write_buffer(sizeof(ShellcodeArgs), loader_shellcode_ptr, static_cast<DWORD>(shellcode_size));
+        loader_buffer.write_buffer(sizeof(ShellcodeArgs), reinterpret_cast<const void *>(loader_shellcode_ptr), static_cast<DWORD>(shellcode_size));
         HANDLE thread_handle = CreateRemoteThread(process.native.handle, NULL, 0, loader_shellcode_ptr, loader_shellargs_ptr, 0, NULL);
 
         // std::printf("Address of Loader: %x\n", loader_buffer.address);

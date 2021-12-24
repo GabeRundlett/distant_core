@@ -56,7 +56,7 @@ namespace distant {
         Module &operator=(const Module &) = delete;
         Module &operator=(Module &&) noexcept;
 
-        Address get_base_address() const;
+        Address get_base_address() const { return reinterpret_cast<Address>(native.base_address); }
         bool read_buffer(AddressOffset offset, void *buffer_ptr, std::size_t buffer_size) const;
         bool write_buffer(AddressOffset offset, const void *buffer_ptr, std::size_t buffer_size) const;
     };

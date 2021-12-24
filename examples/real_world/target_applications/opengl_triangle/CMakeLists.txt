@@ -12,8 +12,8 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_link_options(${PROJECT_NAME} PRIVATE 
-$<$<PLATFORM_ID:Windows>:
-    "/ENTRY:mainCRTStartup"
-    "/SUBSYSTEM:WINDOWS"
->
+# $<$<PLATFORM_ID:Windows>:
+#     "/ENTRY:mainCRTStartup"
+#     "/SUBSYSTEM:WINDOWS"
+# >
 )

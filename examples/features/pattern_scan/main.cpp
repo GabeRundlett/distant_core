@@ -2,7 +2,7 @@
 #include <distant/signature.hpp>
 
 #include <iostream>
-#include <format>
+#include <fmt/format.h>
 
 int main() {
     distant::Process external_process("Distant_Features_TargetApp.exe");
@@ -38,14 +38,14 @@ int main() {
         }
     }
 
-    std::cout << std::format("Checked (dec {0}, hex {0:x}) bytes of the base module\n", i);
+    std::cout << fmt::format("Checked (dec {0}, hex {0:x}) bytes of the base module\n", i);
 
     if (!found_signature) {
         std::cout << "Failed to find signature\n";
         return EXIT_FAILURE;
     }
 
-    std::cout << std::format("Signature found at offset {}\n", (void *)signature_offset);
+    std::cout << fmt::format("Signature found at offset {}\n", (void *)signature_offset);
 
     // write 6 bytes to 0x90, AKA no-op. This disables the `inc` instruction
     // and its 4 byte argument, allowing the code to continue perfectly fine

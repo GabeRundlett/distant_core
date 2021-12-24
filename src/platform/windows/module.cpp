@@ -1,6 +1,6 @@
 #include <distant/core.hpp>
 #include <cstdio>
-#include <format>
+#include <fmt/format.h>
 
 namespace distant {
     Module::Module(const Process &parent_process, const std::string &module_name) {
@@ -42,7 +42,7 @@ namespace distant {
     bool Module::read_buffer(AddressOffset offset, void *buffer_ptr, std::size_t buffer_size) const {
         const auto global_address = std::bit_cast<LPVOID>(std::bit_cast<std::intptr_t>(native.base_address) + offset);
         if (!ReadProcessMemory(native.parent_process_handle, global_address, buffer_ptr, buffer_size, nullptr)) {
-            std::printf(std::format("[ERROR:{:x}] Failed reading module memory at offset {} (address {}) with size {}\n", GetLastError(), (void *)offset, global_address, buffer_size).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed reading module memory at offset {} (address {}) with size {}\n", GetLastError(), (void *)offset, global_address, buffer_size).c_str());
             return false;
         }
         return true;
@@ -51,7 +51,7 @@ namespace distant {
     bool Module::write_buffer(AddressOffset offset, const void *buffer_ptr, std::size_t buffer_size) const {
         const auto global_address = std::bit_cast<LPVOID>(std::bit_cast<std::intptr_t>(native.base_address) + offset);
         if (!WriteProcessMemory(native.parent_process_handle, global_address, buffer_ptr, buffer_size, nullptr)) {
-            std::printf(std::format("[ERROR:{:x}] Failed writing module memory at offset {} (address {}) with size {}\n", GetLastError(), (void *)offset, global_address, buffer_size).c_str());
+            std::printf("%s", fmt::format("[ERROR:{:x}] Failed writing module memory at offset {} (address {}) with size {}\n", GetLastError(), (void *)offset, global_address, buffer_size).c_str());
             return false;
         }
         return true;

@@ -1,6 +1,6 @@
 #include <distant/core.hpp>
 #include <cstdio>
-#include <format>
+#include <fmt/format.h>
 
 namespace distant {
     UniqueVirtualBuffer::UniqueVirtualBuffer(const Process &parent_process, std::size_t buffer_size, const platform::VirtualBuffer::Config &config) : native{parent_process.native.handle}, size{buffer_size} {
